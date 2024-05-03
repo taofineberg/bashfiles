@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# This script installs Duo Security for Ubuntu and configures SSH for challenge response authentication
+
+# Add Duo Security repository
+echo "deb [arch=amd64] https://pkg.duosecurity.com/Ubuntu focal main" | sudo tee /etc/apt/sources.list.d/duosecurity.list
+
+# Import Duo Security GPG key
+curl -s https://duo.com/DUO-GPG-PUBLIC-KEY.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/duosecurity.gpg
+
+# Modify SSHD configuration to enable ChallengeResponseAuthentication
+sudo sed -i 's/ChallengeResponseAuthentication no/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config
+
+# Update package lists
+sudo apt-get update -y
+
+# Install Duo Unix
+sudo apt-get install -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" duo-unix
+
+# Restart SSH service to apply changes
+sudo systemctl restart sshd
+
+echo "Duo Security installation and configuration complete."
